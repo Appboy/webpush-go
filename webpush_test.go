@@ -17,8 +17,8 @@ func getTestSubscription() *Subscription {
 	return &Subscription{
 		Endpoint: "https://updates.push.services.mozilla.com/wpush/v2/gAAAAA",
 		Keys: Keys{
-			P256dh: "BNNL5ZaTfK81qhXOx23-wewhigUeFb632jN6LvRWCFH1ubQr77FE_9qV1FuojuRmHP42zmf34rXgW80OvUVDgTk",
-			Auth:   "zqbxT6JKstKSY9JKibZLSQ",
+			P256dh: "BNNL5ZaTfK81qhXOx23+wewhigUeFb632jN6LvRWCFH1ubQr77FE/9qV1FuojuRmHP42zmf34rXgW80OvUVDgTk=",
+			Auth:   "zqbxT6JKstKSY9JKibZLSQ==",
 		},
 	}
 }
@@ -35,6 +35,6 @@ func TestSendNotification(t *testing.T) {
 		VAPIDPrivateKey: "testKey",
 	})
 
-	assert.Equal(201, resp.StatusCode)
 	assert.Nil(err)
+	assert.Equal(201, resp.StatusCode)
 }
