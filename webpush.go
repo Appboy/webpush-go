@@ -210,15 +210,17 @@ func SendNotification(message []byte, s *Subscription, options *Options) (*http.
 // decodes a base64 subscription key.
 // if necessary, add "=" padding to the key for URL decode
 func decodeSubscriptionKey(key string) ([]byte, error) {
-	b64 := base64.StdEncoding
-
 	// "=" padding
 	buf := bytes.NewBufferString(key)
 	if rem := len(key) % 4; rem != 0 {
 		buf.WriteString(strings.Repeat("=", 4-rem))
 	}
 
-	return b64.DecodeString(buf.String())
+	bytes, err := base64.StdEncoding.DecodeString(buf.String())
+	if err == nil {
+		return bytes, nil
+	}
+	return base64.URLEncoding.DecodeString(buf.String())
 }
 
 // Returns a key of length "length" given an hkdf function
