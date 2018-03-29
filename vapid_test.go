@@ -61,12 +61,12 @@ func TestVAPID(t *testing.T) {
 }
 
 func TestDecodeVapidKeyAcceptsURLEncoding(t *testing.T) {
-	_, err := decodeVapidKey("MHcCAQEEIHF7ijDrb8gwj_9o7UuSx9t_oGlPMyOsG9YQLp3qJwLuoAoGCCqGSM49AwEHoUQDQgAEhB-nJdg0d5oOkdTYsKqbbuQ06ZUYkS0H-ELXsShIkpmcIVIO16Sj15YMBouesMbY4xPdepwF4Pj3QfaALRAG5Q")
+	_, err := decodeVapidKey("8Xq5BzDqeP9TqEfjt6ZB4TygtMd1ogwstfbAM3KF1W4=")
 	assert.NoError(t, err)
 }
 
 func TestDecodeVapidKeyAcceptsRawURLEncoding(t *testing.T) {
-	_, err := decodeVapidKey("8Xq5BzDqeP9TqEfjt6ZB4TygtMd1ogwstfbAM3KF1W4=")
+	_, err := decodeVapidKey("MHcCAQEEIHF7ijDrb8gwj_9o7UuSx9t_oGlPMyOsG9YQLp3qJwLuoAoGCCqGSM49AwEHoUQDQgAEhB-nJdg0d5oOkdTYsKqbbuQ06ZUYkS0H-ELXsShIkpmcIVIO16Sj15YMBouesMbY4xPdepwF4Pj3QfaALRAG5Q")
 	assert.NoError(t, err)
 }
 
