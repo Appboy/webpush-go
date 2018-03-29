@@ -59,6 +59,14 @@ func generateVAPIDHeaderKeys(privateKey []byte) (*ecdsa.PublicKey, *ecdsa.Privat
 	}
 }
 
+func decodeVapidKey(key string) ([]byte, error) {
+	bytes, err := base64.URLEncoding.DecodeString(key)
+	if err == nil {
+		return bytes, nil
+	}
+	return base64.RawURLEncoding.DecodeString(key)
+}
+
 // Sign the http.Request with the required VAPID headers
 func vapid(req *http.Request, s *Subscription, options *Options) error {
 	// Create the JWT token
@@ -73,9 +81,7 @@ func vapid(req *http.Request, s *Subscription, options *Options) error {
 		"sub": fmt.Sprintf("mailto:%s", options.Subscriber),
 	})
 
-	// ECDSA
-	b64 := base64.RawURLEncoding
-	decodedVapidPrivateKey, err := b64.DecodeString(options.VAPIDPrivateKey)
+	decodedVapidPrivateKey, err := decodeVapidKey(options.VAPIDPrivateKey)
 	if err != nil {
 		return err
 	}
