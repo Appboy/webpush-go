@@ -10,7 +10,6 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -39,17 +38,14 @@ type HTTPClient interface {
 
 // Options are config and extra params needed to send a notification
 type Options struct {
-	HTTPClient HTTPClient // Will replace with *http.Client by default if not included
-	RecordSize uint32     // Limit the record size
-	Subscriber string     // Sub in VAPID JWT token
-	Topic      string     // Set the Topic header to collapse a pending messages (Optional)
-	TTL        int        // Set the TTL on the endpoint POST request
-	Urgency    Urgency    // Set the Urgency header to change a message priority (Optional)
-	// Used for Authorization in older Chromium browsers:
-	// https://web-push-book.gauntface.com/chapter-06/01-non-standards-browsers/#what-is-gcm_sender_id
-	LegacyGCMAuthorization string
-	VAPIDPublicKey         string // VAPID public key, passed in VAPID Authorization header
-	VAPIDPrivateKey        string // VAPID private key, used to sign VAPID JWT token
+	HTTPClient      HTTPClient // Will replace with *http.Client by default if not included
+	RecordSize      uint32     // Limit the record size
+	Subscriber      string     // Sub in VAPID JWT token
+	Topic           string     // Set the Topic header to collapse a pending messages (Optional)
+	TTL             int        // Set the TTL on the endpoint POST request
+	Urgency         Urgency    // Set the Urgency header to change a message priority (Optional)
+	VAPIDPublicKey  string     // VAPID public key, passed in VAPID Authorization header
+	VAPIDPrivateKey string     // VAPID private key, used to sign VAPID JWT token
 }
 
 // Keys are the base64 encoded values from PushSubscription.getKey()
@@ -196,22 +192,17 @@ func SendNotification(message []byte, s *Subscription, options *Options) (*http.
 		req.Header.Set("Urgency", string(options.Urgency))
 	}
 
-	if len(options.LegacyGCMAuthorization) > 0 && strings.HasPrefix(s.Endpoint, "https://android.googleapis.com/gcm/send") {
-		// Support older Chromium versions which don't yet support VAPID
-		req.Header.Set("Authorization", fmt.Sprintf("key=%s", options.LegacyGCMAuthorization))
-	} else {
-		// Get VAPID Authorization header
-		vapidAuthHeader, err := getVAPIDAuthorizationHeader(
-			s.Endpoint,
-			options.Subscriber,
-			options.VAPIDPublicKey,
-			options.VAPIDPrivateKey,
-		)
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Set("Authorization", vapidAuthHeader)
+	// Get VAPID Authorization header
+	vapidAuthHeader, err := getVAPIDAuthorizationHeader(
+		s.Endpoint,
+		options.Subscriber,
+		options.VAPIDPublicKey,
+		options.VAPIDPrivateKey,
+	)
+	if err != nil {
+		return nil, err
 	}
+	req.Header.Set("Authorization", vapidAuthHeader)
 
 	// Send the request
 	var client HTTPClient
