@@ -98,9 +98,14 @@ func getVAPIDAuthorizationHeader(
 		return "", err
 	}
 
+	decodedVapidPublicKey, err := decodeVapidKey(vapidPublicKey)
+	if err != nil {
+		return "", err
+	}
+
 	return fmt.Sprintf(
 		"vapid t=%s, k=%s",
 		jwtString,
-		vapidPublicKey,
+		base64.RawURLEncoding.EncodeToString(decodedVapidPublicKey),
 	), nil
 }
