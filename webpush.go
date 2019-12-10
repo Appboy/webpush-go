@@ -228,6 +228,7 @@ func decodeSubscriptionKey(key string) ([]byte, error) {
 	if err == nil {
 		return bytes, nil
 	}
+
 	return base64.URLEncoding.DecodeString(buf.String())
 }
 
