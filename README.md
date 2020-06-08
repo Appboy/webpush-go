@@ -17,27 +17,27 @@ For a full example, refer to the code in the [example](example/) directory.
 package main
 
 import (
-	"encoding/json"
+ "encoding/json"
 
-	webpush "github.com/SherClockHolmes/webpush-go"
+ webpush "github.com/SherClockHolmes/webpush-go"
 )
 
 func main() {
-	// Decode subscription
-	s := &webpush.Subscription{}
-	json.Unmarshal([]byte("<YOUR_SUBSCRIPTION>"), s)
+    // Decode subscription
+    s := &webpush.Subscription{}
+    json.Unmarshal([]byte("<YOUR_SUBSCRIPTION>"), s)
 
-	// Send Notification
-	resp, err := webpush.SendNotification([]byte("Test"), s, &webpush.Options{
-		Subscriber:      "example@example.com",
-		VAPIDPublicKey:  "<YOUR_VAPID_PUBLIC_KEY>",
-		VAPIDPrivateKey: "<YOUR_VAPID_PRIVATE_KEY>",
-		TTL:             30,
-	})
-	if err != nil {
-		// TODO: Handle error
-	}
-	defer resp.Body.Close()
+    // Send Notification
+    resp, err := webpush.SendNotification([]byte("Test"), s, &webpush.Options{
+        Subscriber:      "example@example.com",
+        VAPIDPublicKey:  "<YOUR_VAPID_PUBLIC_KEY>",
+        VAPIDPrivateKey: "<YOUR_VAPID_PRIVATE_KEY>",
+        TTL:             30,
+    })
+    if err != nil {
+        // TODO: Handle error
+    }
+    defer resp.Body.Close()
 }
 ```
 
@@ -48,7 +48,7 @@ Use the helper method `GenerateVAPIDKeys` to generate the VAPID key pair.
 ```golang
 privateKey, publicKey, err := webpush.GenerateVAPIDKeys()
 if err != nil {
-	// TODO: Handle error
+    // TODO: Handle error
 }
 ```
 
@@ -58,6 +58,4 @@ if err != nil {
 2. `go mod vendor`
 3. `go test`
 
-#### For other language implementations visit:
-
-[WebPush Libs](https://github.com/web-push-libs)
+**For other language implementations visit:**  [WebPush Libs](https://github.com/web-push-libs)
