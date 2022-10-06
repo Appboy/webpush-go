@@ -44,7 +44,7 @@ type Options struct {
 	HTTPClient      HTTPClient // Will replace with *http.Client by default if not included
 	RecordSize      uint32     // Limit the record size
 	Subscriber      string     // VAPID Subject for us in JWT token
-	subIsURL        bool       // Without this, Subscriber is assumed to be an email and is prepended with mailto:
+	SubIsURL        bool       // Without this, Subscriber is assumed to be an email and is prepended with mailto:
 	Topic           string     // Set the Topic header to collapse a pending messages (Optional)
 	TTL             int        // Set the TTL on the endpoint POST request
 	Urgency         Urgency    // Set the Urgency header to change a message priority (Optional)
@@ -211,7 +211,7 @@ func SendNotificationWithContext(ctx context.Context, message []byte, s *Subscri
 	vapidAuthHeader, err := getVAPIDAuthorizationHeader(
 		s.Endpoint,
 		options.Subscriber,
-		options.subIsURL,
+		options.SubIsURL,
 		options.VAPIDPublicKey,
 		options.VAPIDPrivateKey,
 	)
