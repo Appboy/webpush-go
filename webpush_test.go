@@ -56,6 +56,31 @@ func TestSendNotificationToURLEncodedSubscription(t *testing.T) {
 	}
 }
 
+func TestSendNotificationWithURLSubject(t *testing.T) {
+	resp, err := SendNotification([]byte("Test"), getURLEncodedTestSubscription(), &Options{
+		HTTPClient:      &testHTTPClient{},
+		RecordSize:      3070,
+		Subscriber:      "https://example.com",
+		SubIsURL:        true,
+		Topic:           "test_topic",
+		TTL:             0,
+		Urgency:         "low",
+		VAPIDPublicKey:  "test-public",
+		VAPIDPrivateKey: "test-private",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != 201 {
+		t.Fatalf(
+			"Incorreect status code, expected=%d, got=%d",
+			resp.StatusCode,
+			201,
+		)
+	}
+}
+
 func TestSendNotificationToStandardEncodedSubscription(t *testing.T) {
 	resp, err := SendNotification([]byte("Test"), getStandardEncodedTestSubscription(), &Options{
 		HTTPClient:      &testHTTPClient{},
