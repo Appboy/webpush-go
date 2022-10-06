@@ -10,61 +10,76 @@ import (
 )
 
 func TestVAPID(t *testing.T) {
-	s := getStandardEncodedTestSubscription()
-	sub := "test@test.com"
+	for _, subIsURL := range []bool{false, true} {
+		t.Run(fmt.Sprintf("subIsUrl=%v", subIsURL), func(t *testing.T) {
+			s := getStandardEncodedTestSubscription()
+			var sub string
+			if subIsURL {
+				sub = "https://test.com/"
+			} else {
+				sub = "test@test.com"
+			}
 
-	// Generate vapid keys
-	vapidPrivateKey, vapidPublicKey, err := GenerateVAPIDKeys()
-	if err != nil {
-		t.Fatal(err)
-	}
+			// Generate vapid keys
+			vapidPrivateKey, vapidPublicKey, err := GenerateVAPIDKeys()
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	// Get authentication header
-	vapidAuthHeader, err := getVAPIDAuthorizationHeader(
-		s.Endpoint,
-		sub,
-		vapidPublicKey,
-		vapidPrivateKey,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Validate the token in the Authorization header
-	tokenString := getTokenFromAuthorizationHeader(vapidAuthHeader, t)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
-			t.Fatal("Wrong validation method need ECDSA!")
-		}
-
-		// To decode the token it needs the VAPID public key
-		b64 := base64.RawURLEncoding
-		decodedVapidPrivateKey, err := b64.DecodeString(vapidPrivateKey)
-		if err != nil {
-			t.Fatal("Could not decode VAPID private key")
-		}
-
-		privKey := generateVAPIDHeaderKeys(decodedVapidPrivateKey)
-		return privKey.Public(), nil
-	})
-
-	// Check the claims on the token
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		expectedSub := fmt.Sprintf("mailto:%s", sub)
-		if expectedSub != claims["sub"] {
-			t.Fatalf(
-				"Incorreect mailto, expected=%s, got=%s",
-				expectedSub,
-				claims["sub"],
+			// Get authentication header
+			vapidAuthHeader, err := getVAPIDAuthorizationHeader(
+				s.Endpoint,
+				sub,
+				subIsURL,
+				vapidPublicKey,
+				vapidPrivateKey,
 			)
-		}
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		if claims["aud"] == "" {
-			t.Fatal("Audience should not be empty")
-		}
-	} else {
-		t.Fatal(err)
+			// Validate the token in the Authorization header
+			tokenString := getTokenFromAuthorizationHeader(vapidAuthHeader, t)
+
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+					t.Fatal("Wrong validation method need ECDSA!")
+				}
+
+				// To decode the token it needs the VAPID public key
+				b64 := base64.RawURLEncoding
+				decodedVapidPrivateKey, err := b64.DecodeString(vapidPrivateKey)
+				if err != nil {
+					t.Fatal("Could not decode VAPID private key")
+				}
+
+				privKey := generateVAPIDHeaderKeys(decodedVapidPrivateKey)
+				return privKey.Public(), nil
+			})
+
+			// Check the claims on the token
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				var expectedSub string
+				if subIsURL {
+					expectedSub = sub
+				} else {
+					expectedSub = fmt.Sprintf("mailto:%s", sub)
+				}
+				if expectedSub != claims["sub"] {
+					t.Fatalf(
+						"Incorreect mailto, expected=%s, got=%s",
+						expectedSub,
+						claims["sub"],
+					)
+				}
+
+				if claims["aud"] == "" {
+					t.Fatal("Audience should not be empty")
+				}
+			} else {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 
